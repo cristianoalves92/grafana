@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestEmailNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Email notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestEmailNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewEmailNotifier(model)
+				_, err := NewEmailNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -39,7 +43,7 @@ func TestEmailNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewEmailNotifier(model)
+				not, err := NewEmailNotifier(model, cacheService)
 				emailNotifier := not.(*EmailNotifier)
 
 				So(err, ShouldBeNil)
@@ -63,7 +67,7 @@ func TestEmailNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewEmailNotifier(model)
+				not, err := NewEmailNotifier(model, cacheService)
 				emailNotifier := not.(*EmailNotifier)
 
 				So(err, ShouldBeNil)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -54,7 +55,7 @@ var (
 )
 
 // NewOpsGenieNotifier is the constructor for OpsGenie.
-func NewOpsGenieNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewOpsGenieNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	autoClose := model.Settings.Get("autoClose").MustBool(true)
 	overridePriority := model.Settings.Get("overridePriority").MustBool(true)
 	apiKey := model.Settings.Get("apiKey").MustString()
@@ -67,7 +68,7 @@ func NewOpsGenieNotifier(model *models.AlertNotification) (alerting.Notifier, er
 	}
 
 	return &OpsGenieNotifier{
-		NotifierBase:     NewNotifierBase(model),
+		NotifierBase:     NewNotifierBase(model, cacheService),
 		APIKey:           apiKey,
 		APIUrl:           apiURL,
 		AutoClose:        autoClose,

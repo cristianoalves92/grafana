@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/util"
@@ -53,7 +54,7 @@ type EmailNotifier struct {
 
 // NewEmailNotifier is the constructor function
 // for the EmailNotifier.
-func NewEmailNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewEmailNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	addressesString := model.Settings.Get("addresses").MustString()
 	singleEmail := model.Settings.Get("singleEmail").MustBool(false)
 
@@ -65,7 +66,7 @@ func NewEmailNotifier(model *models.AlertNotification) (alerting.Notifier, error
 	addresses := util.SplitEmails(addressesString)
 
 	return &EmailNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		Addresses:    addresses,
 		SingleEmail:  singleEmail,
 		log:          log.New("alerting.notifier.email"),

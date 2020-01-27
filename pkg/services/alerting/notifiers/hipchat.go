@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -48,7 +49,7 @@ const (
 
 // NewHipChatNotifier is the constructor functions
 // for the HipChatNotifier
-func NewHipChatNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewHipChatNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	url := model.Settings.Get("url").MustString()
 	if strings.HasSuffix(url, "/") {
 		url = url[:len(url)-1]
@@ -61,7 +62,7 @@ func NewHipChatNotifier(model *models.AlertNotification) (alerting.Notifier, err
 	roomID := model.Settings.Get("roomid").MustString()
 
 	return &HipChatNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		URL:          url,
 		APIKey:       apikey,
 		RoomID:       roomID,

@@ -8,6 +8,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -53,7 +54,7 @@ var (
 )
 
 // NewPagerdutyNotifier is the constructor for the PagerDuty notifier
-func NewPagerdutyNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewPagerdutyNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	severity := model.Settings.Get("severity").MustString("critical")
 	autoResolve := model.Settings.Get("autoResolve").MustBool(false)
 	key := model.Settings.Get("integrationKey").MustString()
@@ -62,7 +63,7 @@ func NewPagerdutyNotifier(model *models.AlertNotification) (alerting.Notifier, e
 	}
 
 	return &PagerdutyNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		Key:          key,
 		Severity:     severity,
 		AutoResolve:  autoResolve,

@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestKafkaNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Kafka notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestKafkaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewKafkaNotifier(model)
+				_, err := NewKafkaNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -40,7 +44,7 @@ func TestKafkaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewKafkaNotifier(model)
+				not, err := NewKafkaNotifier(model, cacheService)
 				kafkaNotifier := not.(*KafkaNotifier)
 
 				So(err, ShouldBeNil)

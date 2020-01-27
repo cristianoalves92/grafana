@@ -3,14 +3,18 @@ package notifiers
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestDingDingNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Dingding notifier tests", t, func() {
 		Convey("empty settings should return error", func() {
 			json := `{ }`
@@ -22,7 +26,7 @@ func TestDingDingNotifier(t *testing.T) {
 				Settings: settingsJSON,
 			}
 
-			_, err := newDingDingNotifier(model)
+			_, err := newDingDingNotifier(model, cacheService)
 			So(err, ShouldNotBeNil)
 
 		})
@@ -36,7 +40,7 @@ func TestDingDingNotifier(t *testing.T) {
 				Settings: settingsJSON,
 			}
 
-			not, err := newDingDingNotifier(model)
+			not, err := newDingDingNotifier(model, cacheService)
 			notifier := not.(*DingDingNotifier)
 
 			So(err, ShouldBeNil)

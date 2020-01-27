@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/setting"
 
 	"github.com/grafana/grafana/pkg/services/rendering"
@@ -208,8 +209,8 @@ func notificationServiceScenario(t *testing.T, name string, evalCtx *EvalContext
 				return renderProvider(ctx, opts)
 			},
 		}
-
-		scenarioCtx.notificationService = newNotificationService(renderService)
+		cacheService := localcache.New(time.Second, time.Second)
+		scenarioCtx.notificationService = newNotificationService(renderService, cacheService)
 		fn(scenarioCtx)
 	})
 }
@@ -225,7 +226,7 @@ type testNotifier struct {
 	Frequency             time.Duration
 }
 
-func newTestNotifier(model *models.AlertNotification) (Notifier, error) {
+func newTestNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (Notifier, error) {
 	uploadImage := true
 	value, exist := model.Settings.CheckGet("uploadImage")
 	if exist {

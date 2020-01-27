@@ -2,14 +2,18 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestThreemaNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Threema notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -23,7 +27,7 @@ func TestThreemaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewThreemaNotifier(model)
+				_, err := NewThreemaNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -42,7 +46,7 @@ func TestThreemaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewThreemaNotifier(model)
+				not, err := NewThreemaNotifier(model, cacheService)
 				So(err, ShouldBeNil)
 				threemaNotifier := not.(*ThreemaNotifier)
 
@@ -69,7 +73,7 @@ func TestThreemaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewThreemaNotifier(model)
+				not, err := NewThreemaNotifier(model, cacheService)
 				So(not, ShouldBeNil)
 				So(err.(alerting.ValidationError).Reason, ShouldEqual, "Invalid Threema Gateway ID: Must start with a *")
 			})
@@ -89,7 +93,7 @@ func TestThreemaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewThreemaNotifier(model)
+				not, err := NewThreemaNotifier(model, cacheService)
 				So(not, ShouldBeNil)
 				So(err.(alerting.ValidationError).Reason, ShouldEqual, "Invalid Threema Gateway ID: Must be 8 characters long")
 			})
@@ -109,7 +113,7 @@ func TestThreemaNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewThreemaNotifier(model)
+				not, err := NewThreemaNotifier(model, cacheService)
 				So(not, ShouldBeNil)
 				So(err.(alerting.ValidationError).Reason, ShouldEqual, "Invalid Threema Recipient ID: Must be 8 characters long")
 			})

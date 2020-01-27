@@ -4,13 +4,17 @@ import (
 	"context"
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+	"time"
 )
 
 func TestOpsGenieNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("OpsGenie notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -24,7 +28,7 @@ func TestOpsGenieNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewOpsGenieNotifier(model)
+				_, err := NewOpsGenieNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -41,7 +45,7 @@ func TestOpsGenieNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewOpsGenieNotifier(model)
+				not, err := NewOpsGenieNotifier(model, cacheService)
 				opsgenieNotifier := not.(*OpsGenieNotifier)
 
 				So(err, ShouldBeNil)
@@ -68,7 +72,7 @@ func TestOpsGenieNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				notifier, notifierErr := NewOpsGenieNotifier(model) //unhandled error
+				notifier, notifierErr := NewOpsGenieNotifier(model, cacheService) //unhandled error
 
 				opsgenieNotifier := notifier.(*OpsGenieNotifier)
 

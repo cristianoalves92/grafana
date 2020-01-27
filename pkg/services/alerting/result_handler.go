@@ -6,6 +6,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/metrics"
 	"github.com/grafana/grafana/pkg/models"
@@ -24,10 +25,10 @@ type defaultResultHandler struct {
 	log      log.Logger
 }
 
-func newResultHandler(renderService rendering.Service) *defaultResultHandler {
+func newResultHandler(renderService rendering.Service, cacheService *localcache.CacheService) *defaultResultHandler {
 	return &defaultResultHandler{
 		log:      log.New("alerting.resultHandler"),
-		notifier: newNotificationService(renderService),
+		notifier: newNotificationService(renderService, cacheService),
 	}
 }
 

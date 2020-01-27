@@ -3,10 +3,12 @@ package alerting
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/null"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 )
@@ -29,7 +31,8 @@ func init() {
 }
 
 func handleNotificationTestCommand(cmd *NotificationTestCommand) error {
-	notifier := newNotificationService(nil)
+	cacheService := localcache.New(time.Second, time.Second)
+	notifier := newNotificationService(nil, cacheService)
 
 	model := &models.AlertNotification{
 		Name:     cmd.Name,
@@ -37,7 +40,7 @@ func handleNotificationTestCommand(cmd *NotificationTestCommand) error {
 		Settings: cmd.Settings,
 	}
 
-	notifiers, err := InitNotifier(model)
+	notifiers, err := InitNotifier(model, cacheService)
 
 	if err != nil {
 		logger.Error("Failed to create notifier", "error", err.Error())

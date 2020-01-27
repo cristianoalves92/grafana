@@ -3,10 +3,12 @@ package notifiers
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -79,6 +81,8 @@ func TestWhenAlertManagerShouldNotify(t *testing.T) {
 
 //nolint:goconst
 func TestAlertmanagerNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Alertmanager notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -92,7 +96,7 @@ func TestAlertmanagerNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewAlertmanagerNotifier(model)
+				_, err := NewAlertmanagerNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -106,7 +110,7 @@ func TestAlertmanagerNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewAlertmanagerNotifier(model)
+				not, err := NewAlertmanagerNotifier(model, cacheService)
 				alertmanagerNotifier := not.(*AlertmanagerNotifier)
 
 				So(err, ShouldBeNil)

@@ -4,7 +4,9 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/services/alerting"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
@@ -13,6 +15,8 @@ import (
 )
 
 func TestPushoverNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Pushover notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -26,7 +30,7 @@ func TestPushoverNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewPushoverNotifier(model)
+				_, err := NewPushoverNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -47,7 +51,7 @@ func TestPushoverNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewPushoverNotifier(model)
+				not, err := NewPushoverNotifier(model, cacheService)
 				pushoverNotifier := not.(*PushoverNotifier)
 
 				So(err, ShouldBeNil)

@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestLineNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Line notifier tests", t, func() {
 		Convey("empty settings should return error", func() {
 			json := `{ }`
@@ -20,7 +24,7 @@ func TestLineNotifier(t *testing.T) {
 				Settings: settingsJSON,
 			}
 
-			_, err := NewLINENotifier(model)
+			_, err := NewLINENotifier(model, cacheService)
 			So(err, ShouldNotBeNil)
 
 		})
@@ -36,7 +40,7 @@ func TestLineNotifier(t *testing.T) {
 				Settings: settingsJSON,
 			}
 
-			not, err := NewLINENotifier(model)
+			not, err := NewLINENotifier(model, cacheService)
 			lineNotifier := not.(*LineNotifier)
 
 			So(err, ShouldBeNil)

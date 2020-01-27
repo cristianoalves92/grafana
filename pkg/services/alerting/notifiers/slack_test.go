@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestSlackNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Slack notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestSlackNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewSlackNotifier(model)
+				_, err := NewSlackNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -40,7 +44,7 @@ func TestSlackNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewSlackNotifier(model)
+				not, err := NewSlackNotifier(model, cacheService)
 				slackNotifier := not.(*SlackNotifier)
 
 				So(err, ShouldBeNil)
@@ -74,7 +78,7 @@ func TestSlackNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewSlackNotifier(model)
+				not, err := NewSlackNotifier(model, cacheService)
 				slackNotifier := not.(*SlackNotifier)
 
 				So(err, ShouldBeNil)

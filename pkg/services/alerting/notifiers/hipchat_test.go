@@ -2,14 +2,18 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 //nolint:goconst
 func TestHipChatNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("HipChat notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -23,7 +27,7 @@ func TestHipChatNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewHipChatNotifier(model)
+				_, err := NewHipChatNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -39,7 +43,7 @@ func TestHipChatNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewHipChatNotifier(model)
+				not, err := NewHipChatNotifier(model, cacheService)
 				hipchatNotifier := not.(*HipChatNotifier)
 
 				So(err, ShouldBeNil)
@@ -65,7 +69,7 @@ func TestHipChatNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewHipChatNotifier(model)
+				not, err := NewHipChatNotifier(model, cacheService)
 				hipchatNotifier := not.(*HipChatNotifier)
 
 				So(err, ShouldBeNil)

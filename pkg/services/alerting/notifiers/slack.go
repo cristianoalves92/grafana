@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -102,7 +103,7 @@ func init() {
 }
 
 // NewSlackNotifier is the constructor for the Slack notifier
-func NewSlackNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewSlackNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	url := model.Settings.Get("url").MustString()
 	if url == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find url property in settings"}
@@ -117,7 +118,7 @@ func NewSlackNotifier(model *models.AlertNotification) (alerting.Notifier, error
 	uploadImage := model.Settings.Get("uploadImage").MustBool(true)
 
 	return &SlackNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		URL:          url,
 		Recipient:    recipient,
 		Username:     username,
@@ -179,7 +180,8 @@ func (sn *SlackNotifier) Notify(evalContext *alerting.EvalContext) error {
 	message := ""
 	mention := strings.TrimSpace(sn.Mention)
 	if mention != "" {
-		// TODO: Convert user handle into Slack user ID
+		// TODO: Try to get user ID from cache
+		// TODO: If user ID not in cache, fetch it from Slack API and store it to cache
 		message = fmt.Sprintf("<@%s>", mention)
 	}
 	if evalContext.Rule.State != models.AlertStateOK { //don't add message when going back to alert state ok.

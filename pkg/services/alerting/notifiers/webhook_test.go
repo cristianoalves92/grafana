@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestWebhookNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Webhook notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestWebhookNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewWebHookNotifier(model)
+				_, err := NewWebHookNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -39,7 +43,7 @@ func TestWebhookNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewWebHookNotifier(model)
+				not, err := NewWebHookNotifier(model, cacheService)
 				webhookNotifier := not.(*WebhookNotifier)
 
 				So(err, ShouldBeNil)

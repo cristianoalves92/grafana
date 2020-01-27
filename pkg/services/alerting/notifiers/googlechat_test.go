@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGoogleChatNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Google Hangouts Chat notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestGoogleChatNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := newGoogleChatNotifier(model)
+				_, err := newGoogleChatNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -39,7 +43,7 @@ func TestGoogleChatNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := newGoogleChatNotifier(model)
+				not, err := newGoogleChatNotifier(model, cacheService)
 				webhookNotifier := not.(*GoogleChatNotifier)
 
 				So(err, ShouldBeNil)

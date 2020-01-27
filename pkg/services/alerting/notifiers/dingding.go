@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -35,7 +36,7 @@ func init() {
 
 }
 
-func newDingDingNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func newDingDingNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	url := model.Settings.Get("url").MustString()
 	if url == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find url property in settings"}
@@ -44,7 +45,7 @@ func newDingDingNotifier(model *models.AlertNotification) (alerting.Notifier, er
 	msgType := model.Settings.Get("msgType").MustString(defaultDingdingMsgType)
 
 	return &DingDingNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		MsgType:      msgType,
 		URL:          url,
 		log:          log.New("alerting.notifier.dingding"),

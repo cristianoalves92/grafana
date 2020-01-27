@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -17,7 +18,7 @@ import (
 const pushoverEndpoint = "https://api.pushover.net/1/messages.json"
 
 func init() {
-	sounds := ` 
+	sounds := `
           'default',
           'pushover',
           'bike',
@@ -96,7 +97,7 @@ func init() {
 }
 
 // NewPushoverNotifier is the constructor for the Pushover Notifier
-func NewPushoverNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewPushoverNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	userKey := model.Settings.Get("userKey").MustString()
 	APIToken := model.Settings.Get("apiToken").MustString()
 	device := model.Settings.Get("device").MustString()
@@ -114,7 +115,7 @@ func NewPushoverNotifier(model *models.AlertNotification) (alerting.Notifier, er
 		return nil, alerting.ValidationError{Reason: "API token not given"}
 	}
 	return &PushoverNotifier{
-		NotifierBase:  NewNotifierBase(model),
+		NotifierBase:  NewNotifierBase(model, cacheService),
 		UserKey:       userKey,
 		APIToken:      APIToken,
 		Priority:      priority,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -23,12 +24,13 @@ type NotifierBase struct {
 	SendReminder          bool
 	DisableResolveMessage bool
 	Frequency             time.Duration
+	cacheService          *localcache.CacheService
 
 	log log.Logger
 }
 
 // NewNotifierBase returns a new `NotifierBase`.
-func NewNotifierBase(model *models.AlertNotification) NotifierBase {
+func NewNotifierBase(model *models.AlertNotification, cacheService *localcache.CacheService) NotifierBase {
 	uploadImage := true
 	value, exist := model.Settings.CheckGet("uploadImage")
 	if exist {
@@ -45,6 +47,7 @@ func NewNotifierBase(model *models.AlertNotification) NotifierBase {
 		DisableResolveMessage: model.DisableResolveMessage,
 		Frequency:             model.Frequency,
 		log:                   log.New("alerting.notifier." + model.Name),
+		cacheService:          cacheService,
 	}
 }
 

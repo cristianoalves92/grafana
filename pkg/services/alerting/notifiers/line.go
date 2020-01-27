@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -33,14 +34,14 @@ const (
 )
 
 // NewLINENotifier is the constructor for the LINE notifier
-func NewLINENotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func NewLINENotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	token := model.Settings.Get("token").MustString()
 	if token == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find token in settings"}
 	}
 
 	return &LineNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		Token:        token,
 		log:          log.New("alerting.notifier.line"),
 	}, nil

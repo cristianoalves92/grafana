@@ -3,6 +3,7 @@ package notifiers
 import (
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -40,16 +41,15 @@ func init() {
 
 }
 
-// NewWebHookNotifier is the constructor for
-// the WebHook notifier.
-func NewWebHookNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+// NewWebHookNotifier is the constructor for the WebHook notifier.
+func NewWebHookNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	url := model.Settings.Get("url").MustString()
 	if url == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find url property in settings"}
 	}
 
 	return &WebhookNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		URL:          url,
 		User:         model.Settings.Get("username").MustString(),
 		Password:     model.Settings.Get("password").MustString(),

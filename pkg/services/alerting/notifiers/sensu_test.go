@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestSensuNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Sensu notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestSensuNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := NewSensuNotifier(model)
+				_, err := NewSensuNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -41,7 +45,7 @@ func TestSensuNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := NewSensuNotifier(model)
+				not, err := NewSensuNotifier(model, cacheService)
 				sensuNotifier := not.(*SensuNotifier)
 
 				So(err, ShouldBeNil)

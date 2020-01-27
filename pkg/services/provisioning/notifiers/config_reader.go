@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	m "github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -140,7 +142,7 @@ func validateRequiredField(notifications []*notificationsAsConfig) error {
 }
 
 func validateNotifications(notifications []*notificationsAsConfig) error {
-
+	cacheService := localcache.New(time.Second, time.Second)
 	for i := range notifications {
 		if notifications[i].Notifications == nil {
 			continue
@@ -151,8 +153,7 @@ func validateNotifications(notifications []*notificationsAsConfig) error {
 				Name:     notification.Name,
 				Settings: notification.SettingsToJson(),
 				Type:     notification.Type,
-			})
-
+			}, cacheService)
 			if err != nil {
 				return err
 			}

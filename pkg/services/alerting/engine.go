@@ -10,6 +10,7 @@ import (
 	tlog "github.com/opentracing/opentracing-go/log"
 
 	"github.com/benbjohnson/clock"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/registry"
 	"github.com/grafana/grafana/pkg/services/rendering"
@@ -22,7 +23,8 @@ import (
 // schedules alert evaluations and makes sure notifications
 // are sent.
 type AlertEngine struct {
-	RenderService rendering.Service `inject:""`
+	RenderService rendering.Service        `inject:""`
+	CacheService  *localcache.CacheService `inject:""`
 
 	execQueue     chan *Job
 	ticker        *Ticker
@@ -50,7 +52,7 @@ func (e *AlertEngine) Init() error {
 	e.evalHandler = NewEvalHandler()
 	e.ruleReader = newRuleReader()
 	e.log = log.New("alerting.engine")
-	e.resultHandler = newResultHandler(e.RenderService)
+	e.resultHandler = newResultHandler(e.RenderService, e.CacheService)
 	return nil
 }
 

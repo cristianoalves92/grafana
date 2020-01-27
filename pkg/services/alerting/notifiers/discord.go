@@ -10,6 +10,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -43,7 +44,7 @@ func init() {
 	})
 }
 
-func newDiscordNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+func newDiscordNotifier(model *models.AlertNotification, cacheService *localcache.CacheService) (alerting.Notifier, error) {
 	content := model.Settings.Get("content").MustString()
 	url := model.Settings.Get("url").MustString()
 	if url == "" {
@@ -51,7 +52,7 @@ func newDiscordNotifier(model *models.AlertNotification) (alerting.Notifier, err
 	}
 
 	return &DiscordNotifier{
-		NotifierBase: NewNotifierBase(model),
+		NotifierBase: NewNotifierBase(model, cacheService),
 		Content:      content,
 		WebhookURL:   url,
 		log:          log.New("alerting.notifier.discord"),

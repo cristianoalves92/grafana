@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
 	. "github.com/smartystreets/goconvey/convey"
@@ -184,6 +185,8 @@ func TestShouldSendAlertNotification(t *testing.T) {
 }
 
 func TestBaseNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("default constructor for notifiers", t, func() {
 		bJSON := simplejson.New()
 
@@ -197,24 +200,24 @@ func TestBaseNotifier(t *testing.T) {
 		Convey("can parse false value", func() {
 			bJSON.Set("uploadImage", false)
 
-			base := NewNotifierBase(model)
+			base := NewNotifierBase(model, cacheService)
 			So(base.UploadImage, ShouldBeFalse)
 		})
 
 		Convey("can parse true value", func() {
 			bJSON.Set("uploadImage", true)
 
-			base := NewNotifierBase(model)
+			base := NewNotifierBase(model, cacheService)
 			So(base.UploadImage, ShouldBeTrue)
 		})
 
 		Convey("default value should be true for backwards compatibility", func() {
-			base := NewNotifierBase(model)
+			base := NewNotifierBase(model, cacheService)
 			So(base.UploadImage, ShouldBeTrue)
 		})
 
 		Convey("default value should be false for backwards compatibility", func() {
-			base := NewNotifierBase(model)
+			base := NewNotifierBase(model, cacheService)
 			So(base.DisableResolveMessage, ShouldBeFalse)
 		})
 	})

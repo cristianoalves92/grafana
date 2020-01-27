@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestDiscordNotifier(t *testing.T) {
+	cacheService := localcache.New(time.Second, time.Second)
+
 	Convey("Telegram notifier tests", t, func() {
 
 		Convey("Parsing alert notification from settings", func() {
@@ -22,7 +26,7 @@ func TestDiscordNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				_, err := newDiscordNotifier(model)
+				_, err := newDiscordNotifier(model, cacheService)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -40,7 +44,7 @@ func TestDiscordNotifier(t *testing.T) {
 					Settings: settingsJSON,
 				}
 
-				not, err := newDiscordNotifier(model)
+				not, err := newDiscordNotifier(model, cacheService)
 				discordNotifier := not.(*DiscordNotifier)
 
 				So(err, ShouldBeNil)

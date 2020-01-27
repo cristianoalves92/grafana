@@ -6,7 +6,7 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 )
 
-// CacheService cache any object in memory on the local instance.
+// CacheService caches any object in memory on the local instance.
 type CacheService struct {
 	*gocache.Cache
 }
