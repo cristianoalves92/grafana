@@ -20,6 +20,7 @@ const themes = [
   { value: '', label: 'Default' },
   { value: 'dark', label: 'Dark' },
   { value: 'light', label: 'Light' },
+  { value: 'custom', label: 'Custom' },
 ];
 
 const timezones = [
